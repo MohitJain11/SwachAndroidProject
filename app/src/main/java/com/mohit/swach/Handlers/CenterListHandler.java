@@ -27,7 +27,7 @@ public class CenterListHandler extends SQLiteOpenHelper {
     public static final String Longitude = "Longitude";
     public static final String CordID = "CordID";
     //Table Name
-    public static final String TABLE_NAME = "Daily_Visit_Image_Handler";
+    public static final String TABLE_NAME = "Center_List_Handler";
 
     //create query
     public static final String CREATE_QUERY = "CREATE TABLE if not exists " + TABLE_NAME + "(id   INTEGER PRIMARY KEY AUTOINCREMENT, " +

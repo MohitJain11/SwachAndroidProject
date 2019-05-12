@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.mohit.swach.extra.db_class;
 import com.mohit.swach.models.DailyVisitImageModel;
-import com.mohit.swach.models.DailyVisitModel;
 
 public class DailyVisitImageHandler extends SQLiteOpenHelper {
     //Field Name
@@ -69,8 +68,8 @@ public class DailyVisitImageHandler extends SQLiteOpenHelper {
         db.execSQL(Delete_QUERY);
     }
 
-    public int countExistCustomer(SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("Select * FROM " + TABLE_NAME, null);
-        return cursor.getCount();
+    public Cursor getDataById(SQLiteDatabase db, String dailyVisitTableId) {
+        Cursor cursor = db.rawQuery("Select * FROM " + TABLE_NAME + " WHERE " + DailyVisitTableId + " = '" + dailyVisitTableId + "'", null);
+        return cursor;
     }
 }

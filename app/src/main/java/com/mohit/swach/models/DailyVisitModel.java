@@ -1,6 +1,7 @@
 package com.mohit.swach.models;
 
 public class DailyVisitModel {
+    public String dailyVisitTableId;
     public int DailyVisitID;
     public String CentreID;
     public String Remark1;

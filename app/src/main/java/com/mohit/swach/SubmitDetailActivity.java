@@ -61,8 +61,12 @@ import java.util.List;
 
 public class SubmitDetailActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, LocationListener, NetworkStateReceiver.NetworkStateReceiverListener {
 
+    private final static int ALL_PERMISSIONS_RESULT = 101;
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
+    //////Geo Location
+    final String TAG = "GPS";
     Button button_save;
-    private ProgressDialog progressDialog;
     TextView tv_header_text;
     TextView tv_committee_details, tv_sutdent_details;
     LinearLayout ll_menu_icon;
@@ -70,7 +74,6 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     EditText et_student_number;
     EditText et_remark;
     String centerNameSelected;
-    private List<CenterListModel> centerList;
     String[] centerName;
     String resultImage[];
     RadioGroup radio_teacher_present, radio_bojan_sanyogi_present, radio_food_present;
@@ -82,12 +85,9 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     CenterListHandler centerListHandler;
     DailyVisitImageHandler dailyVisitImageHandler;
     SQLiteDatabase sqLiteDatabase;
-
-    //////Geo Location
-    final String TAG = "GPS";
-    private final static int ALL_PERMISSIONS_RESULT = 101;
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
+    ArrayList<DailyVisitModel> dailyVisitModelArrayList = new ArrayList<DailyVisitModel>();
+    ArrayList<DailyVisitImageModel> dailyVisitImageList = new ArrayList<DailyVisitImageModel>();
+    /////
     LocationManager locationManager;
     Location loc;
     ArrayList<String> permissions = new ArrayList<>();
@@ -96,7 +96,8 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     boolean isGPS = false;
     boolean isNetwork = false;
     boolean canGetLocation = true;
-
+    private ProgressDialog progressDialog;
+    private List<CenterListModel> centerList;
     ////Network Detecting
     private NetworkStateReceiver networkStateReceiver;
 
@@ -106,6 +107,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         setContentView(R.layout.activity_submit_detail);
 
         dailyVisitHandler = new DailyVisitHandler(getApplicationContext());
+        centerListHandler = new CenterListHandler(getApplicationContext());
         dailyVisitImageHandler = new DailyVisitImageHandler(getApplicationContext());
         sqLiteDatabase = dailyVisitHandler.getWritableDatabase();
         sqLiteDatabase.execSQL(DailyVisitHandler.CREATE_QUERY);
@@ -257,7 +259,11 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
         centerNameSelected = centerName[position];
-        new GetCentreDetails().execute();
+        if (checkInternetConenction()) {
+            new GetCentreDetails().execute();
+        } else {
+            ll_teacher_detail.setVisibility(View.GONE);
+        }
     }
 
 
@@ -300,119 +306,9 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         alertDialog.show();
     }
 
-    class GetListCentre extends AsyncTask<String, Void, Void> {
-        JSONObject jsonobject, returnValue;
-        Boolean status;
-        Boolean isExceptionOccured;
-        String errorMessage, message;
-        JSONArray centerListData;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            HttpClient httpclient = new DefaultHttpClient();
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            HttpPost httppost = new HttpPost(URL.GetListCentre);
-            httppost.setHeader("Content-Type", "application/json");
-            try {
-                JSONObject json = new JSONObject();
-
-//                json.put("PSID", 0);
-//                json.put("GPID", 0);
-//                json.put("VILLAGEID", 0);
-//                json.put("CENTREID", 0);
-//                json.put("CENTRE", "");
-//                json.put("LATITUDE",  loc.getLatitude());
-//                json.put("LONGITUDE",  loc.getLongitude());
-                json.put("UserID", userId);
-
-                httppost.setEntity(new ByteArrayEntity(json.toString().replaceAll("\\\\", "").replaceAll("\"\"", "\"").getBytes("UTF8")));
-                String responseBody = httpclient.execute(httppost, responseHandler);
-                jsonobject = new JSONObject(responseBody);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } finally {
-                progressDialog.dismiss();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            try {
-                if (jsonobject != null) {
-                    isExceptionOccured = jsonobject.getBoolean("IsError");
-                    status = jsonobject.getBoolean("Status");
-                    if (status && !isExceptionOccured) {
-                        centerList = new ArrayList<>();
-                        centerListData = new JSONArray(jsonobject.getString("ReturnValue"));
-                        centerName = new String[centerListData.length()];
-                        for (int i = 0; i < centerListData.length(); i++) {
-                            returnValue = centerListData.getJSONObject(i);
-                            centerName[i] = returnValue.getString("CentreName");
-                            CenterListModel centerListModel = new CenterListModel();
-                            centerListModel.CentreID = returnValue.getInt("CentreID");
-                            centerListModel.PSID = returnValue.getInt("PSID");
-                            centerListModel.GPID = returnValue.getInt("GPID");
-                            centerListModel.VillageID = returnValue.getInt("VillageID");
-                            centerListModel.CentreName = returnValue.getString("CentreName");
-                            centerListModel.DocNo = returnValue.getString("DocNo");
-                            centerListModel.DocNo = returnValue.getString("DocNo");
-                            centerListModel.FTQualification = returnValue.getString("FTQualification");
-                            centerListModel.SecondTeacher = returnValue.getString("SecondTeacher");
-                            centerListModel.STQualification = returnValue.getString("STQualification");
-                            centerListModel.TypeID = returnValue.getInt("TypeID");
-                            centerListModel.MobileNo = returnValue.getString("MobileNo");
-                            centerListModel.Latitude = returnValue.getString("Latitude");
-                            centerListModel.Longitude = returnValue.getString("Longitude");
-                            centerListModel.CordID = returnValue.getInt("CordID");
-                            centerList.add(centerListModel);
-                        }
-                        Generic.centerDataList = centerList;
-                        //Getting the instance of Spinner and applying OnItemSelectedListener on it
-                        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-                        spinner.setOnItemSelectedListener(SubmitDetailActivity.this);
-                        ArrayAdapter aa = new ArrayAdapter(SubmitDetailActivity.this, android.R.layout.simple_spinner_item, centerName);
-                        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        spinner.setAdapter(aa);
-                        addCenterListArray();
-                    } else {
-                        errorMessage = jsonobject.getString("ErrorMessage");
-                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-                progressDialog.dismiss();
-            }
-        }
-    }
-
-    private void addCenterListArray(){
+    private void addCenterListArray() {
         deleteCenterDataList();
-        for(int i=0;i<Generic.centerDataList.size();i++){
+        for (int i = 0; i < Generic.centerDataList.size(); i++) {
             CenterListModel centerListModel = Generic.centerDataList.get(i);
             addCenterList(centerListModel);
         }
@@ -427,90 +323,6 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         sqLiteDatabase = centerListHandler.getWritableDatabase();
         centerListHandler.deletequery(sqLiteDatabase);
     }
-
-    class GetCentreDetails extends AsyncTask<String, Void, Void> {
-        JSONObject jsonobject, returnValue;
-        Boolean status;
-        Boolean isExceptionOccured;
-        String errorMessage, message;
-        JSONArray centerListData;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            HttpClient httpclient = new DefaultHttpClient();
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            HttpPost httppost = new HttpPost(URL.GetCentreDetails);
-            httppost.setHeader("Content-Type", "application/json");
-            try {
-                JSONObject json = new JSONObject();
-
-                json.put("CentreID", getCenterId(centerNameSelected));
-
-                httppost.setEntity(new ByteArrayEntity(json.toString().replaceAll("\\\\", "").replaceAll("\"\"", "\"").getBytes("UTF8")));
-                String responseBody = httpclient.execute(httppost, responseHandler);
-                jsonobject = new JSONObject(responseBody);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } finally {
-                progressDialog.dismiss();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            try {
-                if (jsonobject != null) {
-                    isExceptionOccured = jsonobject.getBoolean("IsError");
-                    status = jsonobject.getBoolean("Status");
-                    returnValue = new JSONObject(jsonobject.getString("ReturnValue"));
-                    if (status && !isExceptionOccured) {
-                        String firstTeacherName = returnValue.getString("FirstTeacher");
-                        String firstTeacherEdu = returnValue.getString("FTQualification");
-                        String secondTeacherName = returnValue.getString("SecondTeacher");
-                        String secondTeacherEdu = returnValue.getString("STQualification");
-
-                        tv_second_teacher_name.setText(secondTeacherName);
-                        tv_second_teacher_edu.setText(secondTeacherEdu);
-                        tv_first_teacher_edu.setText(firstTeacherEdu);
-                        tv_first_teacher_name.setText(firstTeacherName);
-                        ll_teacher_detail.setVisibility(View.VISIBLE);
-
-                    } else {
-                        errorMessage = jsonobject.getString("ErrorMessage");
-                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-                progressDialog.dismiss();
-            }
-        }
-    }
-
 
     public String getCenterId(String centerName) {
         for (int i = 0; i < Generic.centerDataList.size(); i++) {
@@ -574,6 +386,11 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
             }
         }
         Toast.makeText(this, "Order save locally", Toast.LENGTH_SHORT).show();
+        et_student_number.setText("");
+        et_remark.setText("");
+        radio_food_present.clearCheck();
+        radio_bojan_sanyogi_present.clearCheck();
+        radio_teacher_present.clearCheck();
     }
 
     public int addDailyVisit(DailyVisitModel dailyVisitModel) {
@@ -584,130 +401,6 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     public int addDailyVisitImage(DailyVisitImageModel dailyVisitImageModel) {
         sqLiteDatabase = dailyVisitImageHandler.getWritableDatabase();
         return dailyVisitImageHandler.addinnformation(dailyVisitImageModel, sqLiteDatabase);
-    }
-
-
-    class DailyVisitSave extends AsyncTask<String, Void, Void> {
-        JSONObject jsonobject, returnValue;
-        Boolean status;
-        JSONArray returnData;
-        Boolean isExceptionOccured;
-        String errorMessage, message;
-        JSONArray imageList;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            HttpClient httpclient = new DefaultHttpClient();
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            HttpPost httppost = new HttpPost(URL.DailyVisitSave);
-            httppost.setHeader("Content-Type", "application/json");
-            try {
-                JSONObject json = new JSONObject();
-                imageList = new JSONArray();
-                json.put("DailyVisitID", 0);
-                json.put("CentreID", getCenterId(centerNameSelected));
-                ////Teacher Present
-                if (radio_teacher_present.getCheckedRadioButtonId() == R.id.rb_teacher_yes) {
-                    json.put("Remark1", "Y");
-                } else {
-                    if (radio_teacher_present.getCheckedRadioButtonId() == R.id.rb_teacher_no)
-                        json.put("Remark1", "N");
-                    else
-                        json.put("Remark1", "");
-                }
-                ////Bhojan Shanjog
-                if (radio_bojan_sanyogi_present.getCheckedRadioButtonId() == R.id.rb_bhojan_yes) {
-                    json.put("Remark2", "Y");
-                } else {
-                    if (radio_bojan_sanyogi_present.getCheckedRadioButtonId() == R.id.rb_bhojan_no)
-                        json.put("Remark2", "N");
-                    else
-                        json.put("Remark2", "");
-                }
-                ////Food Present
-                if (radio_food_present.getCheckedRadioButtonId() == R.id.rb_food_yes) {
-                    json.put("Remark3", "Y");
-                } else {
-                    if (radio_food_present.getCheckedRadioButtonId() == R.id.rb_food_no)
-                        json.put("Remark3", "N");
-                    else
-                        json.put("Remark3", "");
-                }
-                json.put("Remark5", et_remark.getText().toString());///Remark
-                json.put("Remark4", et_student_number.getText().toString());///Student Present
-                json.put("VisitDate", 0);
-                json.put("UserID", userId);
-                json.put("Latitude", loc.getLatitude());
-                json.put("Longitude", loc.getLongitude());
-                for (int i = 0; i < resultImage.length; i++) {
-                    if (resultImage[i] != null) {
-                        JSONObject imageData = new JSONObject();
-                        imageData.put("TypeID", 1);
-                        String image = "image/jpeg;base64," + resultImage[i];
-                        imageData.put("URL_Path", image.replace("\n", ""));
-                        imageList.put(imageData);
-                    }
-                }
-                json.put("Images", imageList);
-                Log.i("save Json", json.toString());
-                httppost.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
-                String responseBody = httpclient.execute(httppost, responseHandler);
-                jsonobject = new JSONObject(responseBody);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                progressDialog.dismiss();
-//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
-            } finally {
-                progressDialog.dismiss();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            try {
-                if (jsonobject != null) {
-                    isExceptionOccured = jsonobject.getBoolean("IsError");
-                    status = jsonobject.getBoolean("Status");
-                    if (status && !isExceptionOccured) {
-                        String message = jsonobject.getString("Message");
-                        Toast.makeText(SubmitDetailActivity.this, message, Toast.LENGTH_SHORT).show();
-                        et_student_number.setText("");
-                        et_remark.setText("");
-                        radio_food_present.clearCheck();
-                        radio_bojan_sanyogi_present.clearCheck();
-                        radio_teacher_present.clearCheck();
-                    } else {
-                        errorMessage = jsonobject.getString("ErrorMessage");
-                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-                progressDialog.dismiss();
-            }
-        }
     }
 
     ////Geo Location ////////
@@ -957,11 +650,12 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     private void syncDailyVisitData() {
         sqLiteDatabase = dailyVisitHandler.getWritableDatabase();
         Cursor cursor = dailyVisitHandler.getinformation(sqLiteDatabase);
-        DailyVisitModel dailyVisitModel = new DailyVisitModel();
+        dailyVisitModelArrayList = new ArrayList<DailyVisitModel>();
+        dailyVisitImageList = new ArrayList<DailyVisitImageModel>();
         if (cursor.moveToFirst()) {
             do {
-                String dailyVisitTableId;
-                dailyVisitTableId = cursor.getString(cursor.getColumnIndex("DailyVisitTableId"));
+                DailyVisitModel dailyVisitModel = new DailyVisitModel();
+                dailyVisitModel.dailyVisitTableId = cursor.getString(cursor.getColumnIndex("DailyVisitTableId"));
                 dailyVisitModel.DailyVisitID = cursor.getInt(cursor.getColumnIndex("DailyVisitID"));
                 dailyVisitModel.CentreID = cursor.getString(cursor.getColumnIndex("CentreID"));
                 dailyVisitModel.Remark1 = cursor.getString(cursor.getColumnIndex("Remark1"));
@@ -973,19 +667,36 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                 dailyVisitModel.UserID = cursor.getString(cursor.getColumnIndex("UserID"));
                 dailyVisitModel.Latitude = cursor.getString(cursor.getColumnIndex("Latitude"));
                 dailyVisitModel.Longitude = cursor.getString(cursor.getColumnIndex("Longitude"));
+                dailyVisitModelArrayList.add(dailyVisitModel);
+                getImageListById(dailyVisitModel.dailyVisitTableId);
             } while (cursor.moveToNext());
         }
+        new DailyVisitSaveBulk().execute();
         dailyVisitHandler.close();
     }
 
-    private void  getCenterListData(){
+    private void getImageListById(String dailyVisitTableId) {
+        sqLiteDatabase = dailyVisitImageHandler.getWritableDatabase();
+        Cursor cursor = dailyVisitImageHandler.getDataById(sqLiteDatabase, dailyVisitTableId);
+        if (cursor.moveToFirst()) {
+            do {
+                DailyVisitImageModel dailyVisitImageModel = new DailyVisitImageModel();
+                dailyVisitImageModel.DailyVisitTableId = cursor.getInt(cursor.getColumnIndex("DailyVisitTableId"));
+                dailyVisitImageModel.TypeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
+                dailyVisitImageModel.URL_Path = cursor.getString(cursor.getColumnIndex("URL_Path"));
+                dailyVisitImageList.add(dailyVisitImageModel);
+            } while (cursor.moveToNext());
+        }
+    }
+
+    private void getCenterListData() {
         ArrayList<CenterListModel> centerList = new ArrayList<CenterListModel>();
         sqLiteDatabase = centerListHandler.getWritableDatabase();
         Cursor cursor = centerListHandler.getinformation(sqLiteDatabase);
         if (cursor.moveToFirst()) {
             do {
                 CenterListModel centerListModel = new CenterListModel();
-                centerListModel.CentreID= cursor.getInt(cursor.getColumnIndex("CentreID"));
+                centerListModel.CentreID = cursor.getInt(cursor.getColumnIndex("CentreID"));
                 centerListModel.PSID = cursor.getInt(cursor.getColumnIndex("PSID"));
                 centerListModel.GPID = cursor.getInt(cursor.getColumnIndex("GPID"));
                 centerListModel.VillageID = cursor.getInt(cursor.getColumnIndex("VillageID"));
@@ -1005,5 +716,449 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         }
         Generic.centerDataList = centerList;
         centerListHandler.close();
+        Log.i("monty CenterList", Generic.centerDataList.get(0).toString());
+        centerName = new String[Generic.centerDataList.size()];
+        for (int i = 0; i < Generic.centerDataList.size(); i++) {
+            centerName[i] = Generic.centerDataList.get(i).CentreName;
+        }
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(SubmitDetailActivity.this);
+        ArrayAdapter aa = new ArrayAdapter(SubmitDetailActivity.this, android.R.layout.simple_spinner_item, centerName);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(aa);
+    }
+
+    class GetListCentre extends AsyncTask<String, Void, Void> {
+        JSONObject jsonobject, returnValue;
+        Boolean status;
+        Boolean isExceptionOccured;
+        String errorMessage, message;
+        JSONArray centerListData;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            HttpClient httpclient = new DefaultHttpClient();
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            HttpPost httppost = new HttpPost(URL.GetListCentre);
+            httppost.setHeader("Content-Type", "application/json");
+            try {
+                JSONObject json = new JSONObject();
+
+//                json.put("PSID", 0);
+//                json.put("GPID", 0);
+//                json.put("VILLAGEID", 0);
+//                json.put("CENTREID", 0);
+//                json.put("CENTRE", "");
+//                json.put("LATITUDE",  loc.getLatitude());
+//                json.put("LONGITUDE",  loc.getLongitude());
+                json.put("UserID", userId);
+
+                httppost.setEntity(new ByteArrayEntity(json.toString().replaceAll("\\\\", "").replaceAll("\"\"", "\"").getBytes("UTF8")));
+                String responseBody = httpclient.execute(httppost, responseHandler);
+                jsonobject = new JSONObject(responseBody);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } finally {
+                progressDialog.dismiss();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            try {
+                if (jsonobject != null) {
+                    isExceptionOccured = jsonobject.getBoolean("IsError");
+                    status = jsonobject.getBoolean("Status");
+                    if (status && !isExceptionOccured) {
+                        centerList = new ArrayList<>();
+                        centerListData = new JSONArray(jsonobject.getString("ReturnValue"));
+                        centerName = new String[centerListData.length()];
+                        for (int i = 0; i < centerListData.length(); i++) {
+                            returnValue = centerListData.getJSONObject(i);
+                            centerName[i] = returnValue.getString("CentreName");
+                            CenterListModel centerListModel = new CenterListModel();
+                            centerListModel.CentreID = returnValue.getInt("CentreID");
+                            centerListModel.PSID = returnValue.getInt("PSID");
+                            centerListModel.GPID = returnValue.getInt("GPID");
+                            centerListModel.VillageID = returnValue.getInt("VillageID");
+                            centerListModel.CentreName = returnValue.getString("CentreName");
+                            centerListModel.DocNo = returnValue.getString("DocNo");
+                            centerListModel.DocNo = returnValue.getString("DocNo");
+                            centerListModel.FTQualification = returnValue.getString("FTQualification");
+                            centerListModel.SecondTeacher = returnValue.getString("SecondTeacher");
+                            centerListModel.STQualification = returnValue.getString("STQualification");
+                            centerListModel.TypeID = returnValue.getInt("TypeID");
+                            centerListModel.MobileNo = returnValue.getString("MobileNo");
+                            centerListModel.Latitude = returnValue.getString("Latitude");
+                            centerListModel.Longitude = returnValue.getString("Longitude");
+                            centerListModel.CordID = returnValue.getInt("CordID");
+                            centerList.add(centerListModel);
+                        }
+                        Generic.centerDataList = centerList;
+                        //Getting the instance of Spinner and applying OnItemSelectedListener on it
+                        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+                        spinner.setOnItemSelectedListener(SubmitDetailActivity.this);
+                        ArrayAdapter aa = new ArrayAdapter(SubmitDetailActivity.this, android.R.layout.simple_spinner_item, centerName);
+                        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinner.setAdapter(aa);
+                        addCenterListArray();
+                    } else {
+                        errorMessage = jsonobject.getString("ErrorMessage");
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                progressDialog.dismiss();
+            }
+        }
+    }
+
+    class GetCentreDetails extends AsyncTask<String, Void, Void> {
+        JSONObject jsonobject, returnValue;
+        Boolean status;
+        Boolean isExceptionOccured;
+        String errorMessage, message;
+        JSONArray centerListData;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            HttpClient httpclient = new DefaultHttpClient();
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            HttpPost httppost = new HttpPost(URL.GetCentreDetails);
+            httppost.setHeader("Content-Type", "application/json");
+            try {
+                JSONObject json = new JSONObject();
+
+                json.put("CentreID", getCenterId(centerNameSelected));
+
+                httppost.setEntity(new ByteArrayEntity(json.toString().replaceAll("\\\\", "").replaceAll("\"\"", "\"").getBytes("UTF8")));
+                String responseBody = httpclient.execute(httppost, responseHandler);
+                jsonobject = new JSONObject(responseBody);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } finally {
+                progressDialog.dismiss();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            try {
+                if (jsonobject != null) {
+                    isExceptionOccured = jsonobject.getBoolean("IsError");
+                    status = jsonobject.getBoolean("Status");
+                    returnValue = new JSONObject(jsonobject.getString("ReturnValue"));
+                    if (status && !isExceptionOccured) {
+                        String firstTeacherName = returnValue.getString("FirstTeacher");
+                        String firstTeacherEdu = returnValue.getString("FTQualification");
+                        String secondTeacherName = returnValue.getString("SecondTeacher");
+                        String secondTeacherEdu = returnValue.getString("STQualification");
+
+                        tv_second_teacher_name.setText(secondTeacherName);
+                        tv_second_teacher_edu.setText(secondTeacherEdu);
+                        tv_first_teacher_edu.setText(firstTeacherEdu);
+                        tv_first_teacher_name.setText(firstTeacherName);
+                        ll_teacher_detail.setVisibility(View.VISIBLE);
+
+                    } else {
+                        errorMessage = jsonobject.getString("ErrorMessage");
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                progressDialog.dismiss();
+            }
+        }
+    }
+
+    class DailyVisitSave extends AsyncTask<String, Void, Void> {
+        JSONObject jsonobject, returnValue;
+        Boolean status;
+        JSONArray returnData;
+        Boolean isExceptionOccured;
+        String errorMessage, message;
+        JSONArray imageList;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            HttpClient httpclient = new DefaultHttpClient();
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            HttpPost httppost = new HttpPost(URL.DailyVisitSave);
+            httppost.setHeader("Content-Type", "application/json");
+            try {
+                JSONObject json = new JSONObject();
+                imageList = new JSONArray();
+                json.put("DailyVisitID", 0);
+                json.put("CentreID", getCenterId(centerNameSelected));
+                ////Teacher Present
+                if (radio_teacher_present.getCheckedRadioButtonId() == R.id.rb_teacher_yes) {
+                    json.put("Remark1", "Y");
+                } else {
+                    if (radio_teacher_present.getCheckedRadioButtonId() == R.id.rb_teacher_no)
+                        json.put("Remark1", "N");
+                    else
+                        json.put("Remark1", "");
+                }
+                ////Bhojan Shanjog
+                if (radio_bojan_sanyogi_present.getCheckedRadioButtonId() == R.id.rb_bhojan_yes) {
+                    json.put("Remark2", "Y");
+                } else {
+                    if (radio_bojan_sanyogi_present.getCheckedRadioButtonId() == R.id.rb_bhojan_no)
+                        json.put("Remark2", "N");
+                    else
+                        json.put("Remark2", "");
+                }
+                ////Food Present
+                if (radio_food_present.getCheckedRadioButtonId() == R.id.rb_food_yes) {
+                    json.put("Remark3", "Y");
+                } else {
+                    if (radio_food_present.getCheckedRadioButtonId() == R.id.rb_food_no)
+                        json.put("Remark3", "N");
+                    else
+                        json.put("Remark3", "");
+                }
+                json.put("Remark5", et_remark.getText().toString());///Remark
+                json.put("Remark4", et_student_number.getText().toString());///Student Present
+                json.put("VisitDate", 0);
+                json.put("UserID", userId);
+                json.put("Latitude", loc.getLatitude());
+                json.put("Longitude", loc.getLongitude());
+                for (int i = 0; i < resultImage.length; i++) {
+                    if (resultImage[i] != null) {
+                        JSONObject imageData = new JSONObject();
+                        imageData.put("TypeID", 1);
+                        String image = "image/jpeg;base64," + resultImage[i];
+                        imageData.put("URL_Path", image.replace("\n", ""));
+                        imageList.put(imageData);
+                    }
+                }
+                json.put("Images", imageList);
+                Log.i("save Json", json.toString());
+                httppost.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
+                String responseBody = httpclient.execute(httppost, responseHandler);
+                jsonobject = new JSONObject(responseBody);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } finally {
+                progressDialog.dismiss();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            try {
+                if (jsonobject != null) {
+                    isExceptionOccured = jsonobject.getBoolean("IsError");
+                    status = jsonobject.getBoolean("Status");
+                    if (status && !isExceptionOccured) {
+                        String message = jsonobject.getString("Message");
+                        Toast.makeText(SubmitDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                        et_student_number.setText("");
+                        et_remark.setText("");
+                        radio_food_present.clearCheck();
+                        radio_bojan_sanyogi_present.clearCheck();
+                        radio_teacher_present.clearCheck();
+                    } else {
+                        errorMessage = jsonobject.getString("ErrorMessage");
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                progressDialog.dismiss();
+            }
+        }
+    }
+
+    class DailyVisitSaveBulk extends AsyncTask<String, Void, Void> {
+        JSONObject jsonobject, returnValue;
+        Boolean status;
+        JSONArray returnData;
+        Boolean isExceptionOccured;
+        String errorMessage, message;
+        JSONArray imageList;
+        JSONArray dailyVisitArray;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            HttpClient httpclient = new DefaultHttpClient();
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            HttpPost httppost = new HttpPost(URL.DailyVisitSaveBulk);
+            httppost.setHeader("Content-Type", "application/json");
+            try {
+                JSONObject json = new JSONObject();
+                dailyVisitArray = new JSONArray();
+                for (int i = 0; i < dailyVisitModelArrayList.size(); i++) {
+                    imageList = new JSONArray();
+                    JSONObject dailyVisitJson = new JSONObject();
+                    dailyVisitJson.put("DailyVisitID", dailyVisitModelArrayList.get(i).DailyVisitID);
+                    dailyVisitJson.put("CentreID", dailyVisitModelArrayList.get(i).CentreID);
+                    dailyVisitJson.put("UserID", dailyVisitModelArrayList.get(i).UserID);
+                    dailyVisitJson.put("Remark1", dailyVisitModelArrayList.get(i).Remark1);
+                    dailyVisitJson.put("Remark2", dailyVisitModelArrayList.get(i).Remark2);
+                    dailyVisitJson.put("Remark3", dailyVisitModelArrayList.get(i).Remark3);
+                    dailyVisitJson.put("Remark4", dailyVisitModelArrayList.get(i).Remark4);
+                    dailyVisitJson.put("Remark5", dailyVisitModelArrayList.get(i).Remark5);
+                    dailyVisitJson.put("Latitude", dailyVisitModelArrayList.get(i).Latitude);
+                    dailyVisitJson.put("Longitude", dailyVisitModelArrayList.get(i).Longitude);
+                    dailyVisitJson.put("WorkFlag", "A");
+                    for (int j = 0; j < dailyVisitImageList.size(); j++) {
+                        if (dailyVisitModelArrayList.get(i).dailyVisitTableId.equals(dailyVisitImageList.get(j).DailyVisitTableId+"")) {
+                            JSONObject dailyVisitImageJson = new JSONObject();
+                            dailyVisitImageJson.put("TypeID", dailyVisitImageList.get(j).TypeID);
+                            dailyVisitImageJson.put("DailyVisitID", dailyVisitModelArrayList.get(i).DailyVisitID);
+                            dailyVisitImageJson.put("URL_Path", dailyVisitImageList.get(j).URL_Path);
+                            imageList.put(dailyVisitImageJson);
+                        }
+                    }
+                    dailyVisitJson.put("DailyVisitIVList", imageList);
+                    dailyVisitArray.put(dailyVisitJson);
+                }
+                json.put("visits", dailyVisitArray);
+                Log.i("save Json", json.toString());
+                httppost.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
+                String responseBody = httpclient.execute(httppost, responseHandler);
+                jsonobject = new JSONObject(responseBody);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                progressDialog.dismiss();
+//                Toast.makeText(LoginActivity.this, "Something went worng!", Toast.LENGTH_SHORT).show();
+            } finally {
+                progressDialog.dismiss();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            try {
+                if (jsonobject != null) {
+                    isExceptionOccured = jsonobject.getBoolean("IsError");
+                    status = jsonobject.getBoolean("Status");
+                    if (status && !isExceptionOccured) {
+                        String message = jsonobject.getString("Message");
+                        Toast.makeText(SubmitDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                        et_student_number.setText("");
+                        et_remark.setText("");
+                        radio_food_present.clearCheck();
+                        radio_bojan_sanyogi_present.clearCheck();
+                        radio_teacher_present.clearCheck();
+                        deleteDailyVisit();
+                        deleteDailyVisitImage();
+                    } else {
+                        errorMessage = jsonobject.getString("ErrorMessage");
+                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(SubmitDetailActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                progressDialog.dismiss();
+            }
+        }
+    }
+
+    private void deleteDailyVisit() {
+        sqLiteDatabase = dailyVisitHandler.getWritableDatabase();
+        dailyVisitHandler.deletequery(sqLiteDatabase);
+    }
+
+    private void deleteDailyVisitImage() {
+        sqLiteDatabase = dailyVisitImageHandler.getWritableDatabase();
+        dailyVisitImageHandler.deletequery(sqLiteDatabase);
     }
 }
