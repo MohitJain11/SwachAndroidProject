@@ -8,9 +8,10 @@
     <!-- Header -->
 
     <LinearLayout
-        android:layout_width="match_parent"
         android:id="@+id/ll_include_header"
+        android:layout_width="match_parent"
         android:layout_height="50dp">
+
         <include
             android:id="@+id/container_header_lyt"
             layout="@layout/header_layout"
@@ -19,12 +20,11 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_details_tab"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/ll_details_tab"
         android:layout_below="@+id/ll_include_header"
         android:background="@color/water_color_blue"
-        android:elevation="4dp"
         android:orientation="horizontal">
 
         <TextView
@@ -52,16 +52,20 @@
 
 
     <!--Form Filling-->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_below="@+id/ll_details_tab"
+        android:layout_height="match_parent">
     <LinearLayout
         android:id="@+id/ll_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_details_tab"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="30dp"
-        android:paddingBottom="10dp"
         android:layout_marginRight="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -72,6 +76,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/water_color_blue"
                 android:text="Select Center"
                 android:textSize="15sp" />
 
@@ -94,19 +99,134 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/ll_teacher_detail"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:textColor="@color/water_color_blue"
+                    android:text="Teacher Name" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="@color/water_color_blue"
+                    android:textSize="16dp"
+                    android:text="Education" />
+
+                <!--<TextView-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textSize="16dp"-->
+                    <!--android:textColor="@color/water_color_blue"-->
+                    <!--android:text="Mobile" />-->
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id="@+id/tv_first_teacher_name"
+                    android:textSize="16dp"
+                    android:text="" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:id="@+id/tv_first_teacher_edu"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:text="" />
+
+                <!--<TextView-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:id="@+id/tv_first_teacher_mobile"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textSize="16dp"-->
+                    <!--android:text="" />-->
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id="@+id/tv_second_teacher_name"
+                    android:textSize="16dp"
+                    android:text="" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:text=""
+                    android:id="@+id/tv_second_teacher_edu"
+                    />
+
+                <!--<TextView-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textSize="16dp"-->
+                    <!--android:id="@+id/tv_second_teacher_mobile"-->
+                    <!--android:text="" />-->
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/water_color_blue"
                 android:text="Number of Student Present"
                 android:textSize="15sp" />
 
             <EditText
+                android:id="@+id/et_student_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/et_student_number"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/edit_text_border"
                 android:hint="Student Present"
@@ -123,69 +243,152 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/water_color_blue"
                 android:text="Food item Present"
                 android:textSize="15sp" />
 
-            <EditText
+            <!--<EditText-->
+                <!--android:id="@+id/et_remark1"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="5dp"-->
+                <!--android:background="@drawable/edit_text_border"-->
+                <!--android:hint="Yes/No"-->
+                <!--android:inputType="text"-->
+                <!--android:padding="10dp" />-->
+
+            <RadioGroup
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/edit_text_border"
-                android:hint="Yes/No"
-                android:id="@+id/et_remark1"
-                android:inputType="text"
-                android:padding="10dp" />
+                android:id="@+id/radio_food_present"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="YES"
+                    android:id="@+id/rb_food_yes"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="NO"
+                    android:id="@+id/rb_food_no"/>
+            </RadioGroup>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:paddingBottom="5dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/water_color_blue"
                 android:text="Bhojan Sanyogi present"
                 android:textSize="15sp" />
 
-            <EditText
+            <!--<EditText-->
+                <!--android:id="@+id/et_remark2"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="5dp"-->
+                <!--android:background="@drawable/edit_text_border"-->
+                <!--android:hint="Yes/No"-->
+                <!--android:inputType="text"-->
+                <!--android:padding="10dp" />-->
+            <RadioGroup
                 android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:id="@+id/radio_bojan_sanyogi_present"
+                android:layout_height="wrap_content">
+            <RadioButton
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/edit_text_border"
-                android:hint="Yes/No"
-                android:id="@+id/et_remark2"
-                android:inputType="text"
-                android:padding="10dp" />
+                android:layout_weight="1"
+                android:text="YES"
+                android:id="@+id/rb_bhojan_yes"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="NO"
+                android:id="@+id/rb_bhojan_no"/>
+            </RadioGroup>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:paddingBottom="5dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Teacher present"
+                android:textColor="@color/water_color_blue"
+                android:textSize="15sp" />
+
+            <!--<EditText-->
+                <!--android:id="@+id/et_remark3"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="5dp"-->
+                <!--android:background="@drawable/edit_text_border"-->
+                <!--android:hint="Yes/No"-->
+                <!--android:inputType="text"-->
+                <!--android:padding="10dp" />-->
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:id="@+id/radio_teacher_present"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="YES"
+                    android:id="@+id/rb_teacher_yes"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="NO"
+                    android:id="@+id/rb_teacher_no"/>
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/water_color_blue"
+                android:text="Remark"
                 android:textSize="15sp" />
 
             <EditText
+                android:id="@+id/et_remark"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/edit_text_border"
-                android:hint="Yes/No"
-                android:id="@+id/et_remark3"
+                android:hint="Remark"
                 android:inputType="text"
                 android:padding="10dp" />
         </LinearLayout>
     </LinearLayout>
-
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"

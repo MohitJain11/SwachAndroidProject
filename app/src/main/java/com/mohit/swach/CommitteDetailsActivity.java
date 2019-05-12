@@ -2,14 +2,11 @@ package com.mohit.swach;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,19 +26,23 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-public class CommitteDetailsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class CommitteDetailsActivity extends AppCompatActivity {
     TextView tv_header_text;
     private ProgressDialog progressDialog;
-    String []centerName;
+    String[] centerName;
     String centerNameSelected = "";
     TextView tv_member_1, tv_member_2, tv_member_3, tv_member_4, tv_member_5, tv_member_6, tv_member_7;
     TextView tv_chairman_name;
     LinearLayout ll_member_list;
     Button button_search_member;
+    LinearLayout ll_no_data_available;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_committe_details);
+
+        centerNameSelected = getIntent().getStringExtra("centerName");
 
         tv_header_text = findViewById(R.id.tv_header_text);
         tv_header_text.setText("Committee Details");
@@ -50,15 +51,18 @@ public class CommitteDetailsActivity extends AppCompatActivity implements Adapte
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Loading");
 
-        centerName = new String[Generic.centerDataList.size()];
-        for(int i=0;i<Generic.centerDataList.size();i++){
-            centerName[i] = Generic.centerDataList.get(i).CentreName;
-        }
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setOnItemSelectedListener(CommitteDetailsActivity.this);
-        ArrayAdapter aa = new ArrayAdapter(CommitteDetailsActivity.this, android.R.layout.simple_spinner_item, centerName);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(aa);
+//        centerName = new String[Generic.centerDataList.size()];
+//        for(int i=0;i<Generic.centerDataList.size();i++){
+//            centerName[i] = Generic.centerDataList.get(i).CentreName;
+//        }
+//        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+//        spinner.setOnItemSelectedListener(CommitteDetailsActivity.this);
+//        ArrayAdapter aa = new ArrayAdapter(CommitteDetailsActivity.this, android.R.layout.simple_spinner_item, centerName);
+//        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setAdapter(aa);
+
+        ll_no_data_available = findViewById(R.id.ll_no_data_available);
+        ll_no_data_available.setVisibility(View.GONE);
 
         tv_chairman_name = findViewById(R.id.tv_chairman_name);
         tv_member_1 = findViewById(R.id.tv_member_1);
@@ -66,7 +70,7 @@ public class CommitteDetailsActivity extends AppCompatActivity implements Adapte
         tv_member_3 = findViewById(R.id.tv_member_3);
         tv_member_4 = findViewById(R.id.tv_member_4);
         tv_member_5 = findViewById(R.id.tv_member_5);
-        tv_member_6= findViewById(R.id.tv_member_6);
+        tv_member_6 = findViewById(R.id.tv_member_6);
         tv_member_7 = findViewById(R.id.tv_member_7);
         ll_member_list = findViewById(R.id.ll_member_list);
         ll_member_list.setVisibility(View.GONE);
@@ -87,26 +91,28 @@ public class CommitteDetailsActivity extends AppCompatActivity implements Adapte
                 new GetListCenterMember().execute();
             }
         });
+
+        new GetListCenterMember().execute();
     }
 
-    //Performing action onItemSelected and onNothing selected
-    @Override
-    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-//        Toast.makeText(getApplicationContext(), centerName[position], Toast.LENGTH_LONG).show();
-        centerNameSelected = centerName[position];
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
-    }
+//    //Performing action onItemSelected and onNothing selected
+//    @Override
+//    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+////        Toast.makeText(getApplicationContext(), centerName[position], Toast.LENGTH_LONG).show();
+//        centerNameSelected = centerName[position];
+//    }
+//
+//    @Override
+//    public void onNothingSelected(AdapterView<?> arg0) {
+//        // TODO Auto-generated method stub
+//    }
 
 
     public String getCenterId(String centerName) {
         for (int i = 0; i < Generic.centerDataList.size(); i++) {
             try {
-                if (centerName.equals(Generic.centerDataList.get(i).CentreName)){
-                    return ""+Generic.centerDataList.get(i).CentreID;
+                if (centerName.equals(Generic.centerDataList.get(i).CentreName)) {
+                    return "" + Generic.centerDataList.get(i).CentreID;
                 }
             } catch (Exception e) {
                 return "";
@@ -173,16 +179,21 @@ public class CommitteDetailsActivity extends AppCompatActivity implements Adapte
                     status = jsonobject.getBoolean("Status");
                     if (status && !isExceptionOccured) {
                         returnData = new JSONArray(jsonobject.getString("ReturnValue"));
-                        returnValue = returnData.getJSONObject(0);
-                        tv_chairman_name.setText(returnValue.getString("Chairman"));
-                        tv_member_1.setText(returnValue.getString("Member1"));
-                        tv_member_2.setText(returnValue.getString("Member2"));
-                        tv_member_3.setText(returnValue.getString("Member3"));
-                        tv_member_4.setText(returnValue.getString("Member4"));
-                        tv_member_5.setText(returnValue.getString("Member5"));
-                        tv_member_6.setText(returnValue.getString("Member6"));
-                        tv_member_7.setText(returnValue.getString("Member7"));
-                        ll_member_list.setVisibility(View.VISIBLE);
+                        if (returnData.length() > 0) {
+                            returnValue = returnData.getJSONObject(0);
+                            tv_chairman_name.setText(returnValue.getString("Chairman"));
+                            tv_member_1.setText(returnValue.getString("Member1"));
+                            tv_member_2.setText(returnValue.getString("Member2"));
+                            tv_member_3.setText(returnValue.getString("Member3"));
+                            tv_member_4.setText(returnValue.getString("Member4"));
+                            tv_member_5.setText(returnValue.getString("Member5"));
+                            tv_member_6.setText(returnValue.getString("Member6"));
+                            tv_member_7.setText(returnValue.getString("Member7"));
+                            ll_no_data_available.setVisibility(View.GONE);
+                            ll_member_list.setVisibility(View.VISIBLE);
+                        } else {
+                            ll_no_data_available.setVisibility(View.VISIBLE);
+                        }
                         progressDialog.dismiss();
                     } else {
                         errorMessage = jsonobject.getString("ErrorMessage");

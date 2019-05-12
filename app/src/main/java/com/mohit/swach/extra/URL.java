@@ -3,12 +3,12 @@ package com.mohit.swach.extra;
 public class URL {
     public static final String Url_IP = "103.74.54.55:7902";
 
-//    Controller Name Swach
+//    Controller Name Admin
     public static String UserLogin = "http://" + Url_IP + "/api/Admin/UserLogin";
     public static String OtpGenerate = "http://" + Url_IP + "/api/Admin/OtpGenerate";
     public static String CheckOTP = "http://" + Url_IP + "/api/Admin/CheckOTP";
 
-//    Controller Name Swach
+//    Controller Name SwachList
     public static String GetListPS = "http://" + Url_IP + "/api/SwachList/GetListPS";
     public static String GetListGP = "http://" + Url_IP + "/api/SwachList/GetListGP";
     public static String GetListVillage = "http://" + Url_IP + "/api/SwachList/GetListVillage";
@@ -19,6 +19,12 @@ public class URL {
 
     /// Controller Name DailyVisit
     public static String DailyVisitSave = "http://" + Url_IP + "/api/DailyVisit/DailyVisitSave";
+    public static String DailyVisitSaveBulk = "http://" + Url_IP + "/api/DailyVisit/DailyVisitSaveBulk";
+
+    /// Controller Name SwachData
+    public static String GetCentreDetails = "http://" + Url_IP + "/api/SwachData/GetCentreDetails";
 
 
 }
+
+

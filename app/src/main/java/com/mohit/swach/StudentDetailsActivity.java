@@ -9,10 +9,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,12 +34,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentDetailsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class StudentDetailsActivity extends AppCompatActivity {
     TextView tv_header_text;
     private ProgressDialog progressDialog;
     String[] centerName;
     String centerNameSelected = "";
     Button button_student_details;
+
+    LinearLayout ll_no_data_available, ll_student_list;
 
     /////Student List//////
     private List<StudentListModel> studentList = new ArrayList<>();
@@ -53,6 +53,8 @@ public class StudentDetailsActivity extends AppCompatActivity implements Adapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_details);
 
+        centerNameSelected = getIntent().getStringExtra("centerName");
+
         tv_header_text = findViewById(R.id.tv_header_text);
         tv_header_text.setText("Student Details");
 
@@ -60,15 +62,20 @@ public class StudentDetailsActivity extends AppCompatActivity implements Adapter
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Loading");
 
-        centerName = new String[Generic.centerDataList.size()];
-        for (int i = 0; i < Generic.centerDataList.size(); i++) {
-            centerName[i] = Generic.centerDataList.get(i).CentreName;
-        }
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setOnItemSelectedListener(StudentDetailsActivity.this);
-        ArrayAdapter aa = new ArrayAdapter(StudentDetailsActivity.this, android.R.layout.simple_spinner_item, centerName);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(aa);
+        ll_student_list = findViewById(R.id.ll_student_list);
+        ll_no_data_available = findViewById(R.id.ll_no_data_available);
+        ll_no_data_available.setVisibility(View.GONE);
+        ll_student_list.setVisibility(View.VISIBLE);
+
+//        centerName = new String[Generic.centerDataList.size()];
+//        for (int i = 0; i < Generic.centerDataList.size(); i++) {
+//            centerName[i] = Generic.centerDataList.get(i).CentreName;
+//        }
+//        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+//        spinner.setOnItemSelectedListener(StudentDetailsActivity.this);
+//        ArrayAdapter aa = new ArrayAdapter(StudentDetailsActivity.this, android.R.layout.simple_spinner_item, centerName);
+//        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner.setAdapter(aa);
 
         recycler_view_student_details = (RecyclerView) findViewById(R.id.recycler_view_student_details);
 
@@ -79,19 +86,21 @@ public class StudentDetailsActivity extends AppCompatActivity implements Adapter
                 new GetListStudent().execute();
             }
         });
+
+        new GetListStudent().execute();
     }
 
-    //Performing action onItemSelected and onNothing selected
-    @Override
-    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-//        Toast.makeText(getApplicationContext(), centerName[position], Toast.LENGTH_LONG).show();
-        centerNameSelected = centerName[position];
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
-    }
+//    //Performing action onItemSelected and onNothing selected
+//    @Override
+//    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+////        Toast.makeText(getApplicationContext(), centerName[position], Toast.LENGTH_LONG).show();
+//        centerNameSelected = centerName[position];
+//    }
+//
+//    @Override
+//    public void onNothingSelected(AdapterView<?> arg0) {
+//        // TODO Auto-generated method stub
+//    }
 
     public String getCenterId(String centerName) {
         for (int i = 0; i < Generic.centerDataList.size(); i++) {
@@ -193,12 +202,15 @@ public class StudentDetailsActivity extends AppCompatActivity implements Adapter
                         recycler_view_student_details.setLayoutManager(mLayoutManager);
                         recycler_view_student_details.setItemAnimator(new DefaultItemAnimator());
                         recycler_view_student_details.setAdapter(studentListAdapter);
+                        ll_student_list.setVisibility(View.VISIBLE);
                     } else {
+                        ll_no_data_available.setVisibility(View.VISIBLE);
                         errorMessage = jsonobject.getString("ErrorMessage");
                         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
                 } else {
+                    ll_no_data_available.setVisibility(View.VISIBLE);
                     Toast.makeText(StudentDetailsActivity.this, "Please try again later!", Toast.LENGTH_LONG).show();
                     progressDialog.dismiss();
                 }

@@ -21,6 +21,7 @@ public class StudentListAdapter  extends RecyclerView.Adapter<StudentListAdapter
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView tv_class, tv_aadhar_number, tv_father_name;
         public TextView tv_dob, tv_center_name, tv_student_name;
+        public TextView tv_student_no, tv_sex_name;
 
         public MyViewHolder(View view) {
             super(view);
@@ -30,6 +31,8 @@ public class StudentListAdapter  extends RecyclerView.Adapter<StudentListAdapter
             tv_dob = (TextView) view.findViewById(R.id.tv_dob);
             tv_center_name = (TextView) view.findViewById(R.id.tv_center_name);
             tv_student_name = (TextView) view.findViewById(R.id.tv_student_name);
+            tv_sex_name = (TextView) view.findViewById(R.id.tv_sex_name);
+            tv_student_no = (TextView) view.findViewById(R.id.tv_student_no);
         }
     }
 
@@ -48,6 +51,8 @@ public class StudentListAdapter  extends RecyclerView.Adapter<StudentListAdapter
         holder.tv_father_name.setText(StudentListModel.StudentFatherName);
         holder.tv_aadhar_number.setText(StudentListModel.AadharNo);
         holder.tv_student_name.setText(StudentListModel.StudentName);
+        holder.tv_student_no.setText(StudentListModel.StudentsNo);
+        holder.tv_sex_name.setText(StudentListModel.StudentSex);
     }
 
     @NonNull

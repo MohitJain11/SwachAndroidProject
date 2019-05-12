@@ -7,4 +7,6 @@ import java.util.List;
 public class Generic {
     public static List<CenterListModel> centerDataList;
 
+
+
 }
