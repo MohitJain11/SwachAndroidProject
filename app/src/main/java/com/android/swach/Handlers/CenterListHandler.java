@@ -1,4 +1,4 @@
-package com.mohit.swach.Handlers;
+package com.android.swach.Handlers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.mohit.swach.extra.db_class;
-import com.mohit.swach.models.CenterListModel;
+import com.android.swach.extra.db_class;
+import com.android.swach.models.CenterListModel;
 
 public class CenterListHandler extends SQLiteOpenHelper {
     //Field Name

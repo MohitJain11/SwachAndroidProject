@@ -1,7 +1,4 @@
-package com.mohit.swach.models;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+package com.android.swach.models;
 
 public class CenterListModel {
     public int CentreID;

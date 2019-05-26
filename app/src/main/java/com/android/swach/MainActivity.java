@@ -1,4 +1,4 @@
-package com.mohit.swach;
+package com.android.swach;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

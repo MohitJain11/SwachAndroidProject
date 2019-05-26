@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mohit.swach">
+    package="com.android.swach">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,18 +14,18 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name="com.android.swach.MainActivity" />
+        <activity android:name="com.android.swach.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SubmitDetailActivity" />
-        <activity android:name=".Upload" />
-        <activity android:name=".CommitteDetailsActivity" />
-        <activity android:name=".StudentDetailsActivity"></activity>
+        <activity android:name="com.android.swach.SubmitDetailActivity" />
+        <activity android:name="com.android.swach.Upload" />
+        <activity android:name="com.android.swach.CommitteDetailsActivity" />
+        <activity android:name="com.android.swach.StudentDetailsActivity"></activity>
     </application>
 
 </manifest>

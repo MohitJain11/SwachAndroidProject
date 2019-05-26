@@ -1,4 +1,4 @@
-package com.mohit.swach.models;
+package com.android.swach.models;
 
 public class DailyVisitModel {
     public String dailyVisitTableId;

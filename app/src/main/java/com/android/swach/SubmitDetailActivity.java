@@ -1,4 +1,4 @@
-package com.mohit.swach;
+package com.android.swach;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -34,15 +34,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mohit.swach.Handlers.CenterListHandler;
-import com.mohit.swach.Handlers.DailyVisitHandler;
-import com.mohit.swach.Handlers.DailyVisitImageHandler;
-import com.mohit.swach.extra.Generic;
-import com.mohit.swach.extra.NetworkStateReceiver;
-import com.mohit.swach.extra.URL;
-import com.mohit.swach.models.CenterListModel;
-import com.mohit.swach.models.DailyVisitImageModel;
-import com.mohit.swach.models.DailyVisitModel;
+import com.android.swach.Handlers.CenterListHandler;
+import com.android.swach.Handlers.DailyVisitHandler;
+import com.android.swach.Handlers.DailyVisitImageHandler;
+import com.android.swach.extra.Generic;
+import com.android.swach.extra.NetworkStateReceiver;
+import com.android.swach.extra.URL;
+import com.android.swach.models.CenterListModel;
+import com.android.swach.models.DailyVisitImageModel;
+import com.android.swach.models.DailyVisitModel;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -1071,7 +1071,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                 for (int i = 0; i < dailyVisitModelArrayList.size(); i++) {
                     imageList = new JSONArray();
                     JSONObject dailyVisitJson = new JSONObject();
-                    dailyVisitJson.put("DailyVisitID", dailyVisitModelArrayList.get(i).DailyVisitID);
+                    dailyVisitJson.put("DailyVisitID", i);
                     dailyVisitJson.put("CentreID", dailyVisitModelArrayList.get(i).CentreID);
                     dailyVisitJson.put("UserID", dailyVisitModelArrayList.get(i).UserID);
                     dailyVisitJson.put("Remark1", dailyVisitModelArrayList.get(i).Remark1);
@@ -1086,7 +1086,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                         if (dailyVisitModelArrayList.get(i).dailyVisitTableId.equals(dailyVisitImageList.get(j).DailyVisitTableId+"")) {
                             JSONObject dailyVisitImageJson = new JSONObject();
                             dailyVisitImageJson.put("TypeID", dailyVisitImageList.get(j).TypeID);
-                            dailyVisitImageJson.put("DailyVisitID", dailyVisitModelArrayList.get(i).DailyVisitID);
+                            dailyVisitImageJson.put("DailyVisitID", i);
                             dailyVisitImageJson.put("URL_Path", dailyVisitImageList.get(j).URL_Path);
                             imageList.put(dailyVisitImageJson);
                         }

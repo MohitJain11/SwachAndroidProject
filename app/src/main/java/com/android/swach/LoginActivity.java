@@ -1,4 +1,4 @@
-package com.mohit.swach;
+package com.android.swach;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.mohit.swach.extra.URL;
+import com.android.swach.extra.URL;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;

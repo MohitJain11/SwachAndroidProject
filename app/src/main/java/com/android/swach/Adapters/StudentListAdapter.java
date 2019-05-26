@@ -1,4 +1,4 @@
-package com.mohit.swach.Adapters;
+package com.android.swach.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mohit.swach.R;
-import com.mohit.swach.models.StudentListModel;
+import com.android.swach.R;
+import com.android.swach.models.StudentListModel;
 
 import java.util.List;
 

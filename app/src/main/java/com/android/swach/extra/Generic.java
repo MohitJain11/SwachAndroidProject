@@ -1,6 +1,6 @@
-package com.mohit.swach.extra;
+package com.android.swach.extra;
 
-import com.mohit.swach.models.CenterListModel;
+import com.android.swach.models.CenterListModel;
 
 import java.util.List;
 

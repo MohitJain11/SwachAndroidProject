@@ -1,4 +1,4 @@
-package com.mohit.swach.extra;
+package com.android.swach.extra;
 
 public class URL {
     public static final String Url_IP = "103.74.54.55:7902";

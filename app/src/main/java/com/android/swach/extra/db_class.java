@@ -1,4 +1,4 @@
-package com.mohit.swach.extra;
+package com.android.swach.extra;
 
 import android.database.sqlite.SQLiteDatabase;
 import static android.database.sqlite.SQLiteDatabase.openOrCreateDatabase;

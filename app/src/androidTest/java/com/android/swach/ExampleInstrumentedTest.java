@@ -1,4 +1,4 @@
-package com.mohit.swach;
+package com.android.swach;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

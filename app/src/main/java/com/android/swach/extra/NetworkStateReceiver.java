@@ -1,4 +1,4 @@
-package com.mohit.swach.extra;
+package com.android.swach.extra;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
