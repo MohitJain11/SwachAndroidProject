@@ -859,9 +859,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
             httppost.setHeader("Content-Type", "application/json");
             try {
                 JSONObject json = new JSONObject();
-
                 json.put("CentreID", getCenterId(centerNameSelected));
-
                 httppost.setEntity(new ByteArrayEntity(json.toString().replaceAll("\\\\", "").replaceAll("\"\"", "\"").getBytes("UTF8")));
                 String responseBody = httpclient.execute(httppost, responseHandler);
                 jsonobject = new JSONObject(responseBody);

@@ -1,7 +1,8 @@
 package com.android.swach.extra;
 
 public class URL {
-    public static final String Url_IP = "103.74.54.55:7902";
+//    public static final String Url_IP = "103.74.54.55:7902";/////
+    public static final String Url_IP = "103.74.54.30:7902";/////
 
 //    Controller Name Admin
     public static String UserLogin = "http://" + Url_IP + "/api/Admin/UserLogin";

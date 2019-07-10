@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     LinearLayout ll_login_form, ll_otp_form;
     AppCompatEditText et_otp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +66,11 @@ public class LoginActivity extends AppCompatActivity {
         button_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new UserLogin().execute();
+                if(login_id.getText().toString().equals("") && password.getText().toString().equals("")){
+                    Toast.makeText(LoginActivity.this, "Please enter id and password.", Toast.LENGTH_SHORT).show();
+                } else {
+                    new UserLogin().execute();
+                }
             }
         });
 
