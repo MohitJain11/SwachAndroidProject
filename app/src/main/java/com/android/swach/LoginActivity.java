@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatEditText;
+//import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.widget.AppCompatEditText;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -26,15 +28,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
+
 
 public class LoginActivity extends AppCompatActivity {
 
     Button button_login;
     Button button_verify_otp;
-    AppCompatEditText password, login_id;
+    EditText password, login_id;
     private ProgressDialog progressDialog;
     LinearLayout ll_login_form, ll_otp_form;
-    AppCompatEditText et_otp;
+    EditText et_otp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,9 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("LoginData", MODE_PRIVATE);
         String restoredText = prefs.getString("isLogin", null);
         if (restoredText != null && restoredText.equals("yes")) {
+//            Toast.makeText(this, restoredText, Toast.LENGTH_SHORT).show();
+            Log.i("testabcd", prefs.getString("CordName", "null"));
+            Log.i("testabcdmob", prefs.getString("MobileNo", "null"));
             Intent intent = new Intent(LoginActivity.this, SubmitDetailActivity.class);
             startActivity(intent);
             finish();

@@ -2,6 +2,7 @@ package com.android.swach;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.DialogInterface;
@@ -15,13 +16,16 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AlertDialog;
+//import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -43,6 +47,7 @@ import com.android.swach.extra.URL;
 import com.android.swach.models.CenterListModel;
 import com.android.swach.models.DailyVisitImageModel;
 import com.android.swach.models.DailyVisitModel;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -58,6 +63,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SubmitDetailActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, LocationListener, NetworkStateReceiver.NetworkStateReceiverListener {
 
@@ -98,6 +105,8 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     boolean canGetLocation = true;
     private ProgressDialog progressDialog;
     private List<CenterListModel> centerList;
+    String Latitude = "0.0";
+    String Longitude = "0.0";
     ////Network Detecting
     private NetworkStateReceiver networkStateReceiver;
 
@@ -238,6 +247,26 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
             }
         });
 
+        et_student_number.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (et_student_number.getText().toString() != null && !et_student_number.getText().toString().equals("") && Integer.parseInt(et_student_number.getText().toString()) > 30) {
+                    et_student_number.setText("");
+                    Toast.makeText(SubmitDetailActivity.this, "You can't fill more than 30 students", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
     }
 
     @Override
@@ -245,13 +274,19 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
 
         if (resultCode == RESULT_OK) {
             resultImage = data.getStringArrayExtra("resultImage");
-            if (resultImage != null) {
+            if (resultImage != null && resultImage.length != 0 && resultImage[0] != null) {
                 if (checkInternetConenction())
                     new DailyVisitSave().execute();
                 else
                     saveDailyVisitData();
+            } else {
+                Toast.makeText(this, "Please add atleast one image to proceed.", Toast.LENGTH_SHORT).show();
             }
         }
+
+//        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+//        Log.i("Firebase Token abcd", refreshedToken);
+//        Toast.makeText(this, refreshedToken, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -372,8 +407,13 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         dailyVisitModel.Remark4 = et_student_number.getText().toString();///Student Present
         dailyVisitModel.VisitDate = "0";
         dailyVisitModel.UserID = userId;
-        dailyVisitModel.Latitude = loc.getLatitude() + "";
-        dailyVisitModel.Longitude = loc.getLongitude() + "";
+//        if (loc == null) {
+//            dailyVisitModel.Latitude = "0";
+//            dailyVisitModel.Longitude = "0";
+//        } else {
+        dailyVisitModel.Latitude = Latitude;
+        dailyVisitModel.Longitude = Longitude;
+//        }
         int dailyVisitTableId = addDailyVisit(dailyVisitModel);
         for (int i = 0; i < resultImage.length; i++) {
             if (resultImage[i] != null) {
@@ -603,6 +643,8 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
 //        Toast.makeText(this, DateFormat.getTimeInstance().format(loc.getTime()) + "", Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, loc.getLatitude() + " latitude", Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, loc.getLongitude() + " Longitude", Toast.LENGTH_SHORT).show();
+        Latitude = Double.toString(loc.getLatitude());
+        Longitude = Double.toString(loc.getLongitude());
     }
 
     @Override
@@ -716,7 +758,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         }
         Generic.centerDataList = centerList;
         centerListHandler.close();
-        Log.i("monty CenterList", Generic.centerDataList.get(0).toString());
+//        Log.i("monty CenterList", Generic.centerDataList.get(0).toString());
         centerName = new String[Generic.centerDataList.size()];
         for (int i = 0; i < Generic.centerDataList.size(); i++) {
             centerName[i] = Generic.centerDataList.get(i).CentreName;
@@ -975,8 +1017,13 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                 json.put("Remark4", et_student_number.getText().toString());///Student Present
                 json.put("VisitDate", 0);
                 json.put("UserID", userId);
-                json.put("Latitude", loc.getLatitude());
-                json.put("Longitude", loc.getLongitude());
+//                if(loc == null){
+//                    json.put("Latitude", "0");
+//                    json.put("Longitude", "0");
+//                } else {
+                json.put("Latitude", Latitude);
+                json.put("Longitude", Longitude);
+//                }
                 for (int i = 0; i < resultImage.length; i++) {
                     if (resultImage[i] != null) {
                         JSONObject imageData = new JSONObject();
@@ -987,6 +1034,10 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                     }
                 }
                 json.put("Images", imageList);
+
+                String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+                json.put("MobileKey", refreshedToken);
+
                 Log.i("save Json", json.toString());
                 httppost.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
                 String responseBody = httpclient.execute(httppost, responseHandler);
@@ -1027,6 +1078,9 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                         radio_food_present.clearCheck();
                         radio_bojan_sanyogi_present.clearCheck();
                         radio_teacher_present.clearCheck();
+                        //For Audio File
+                        MediaPlayer ring = MediaPlayer.create(SubmitDetailActivity.this, R.raw.upload_audio);
+                        ring.start();
                     } else {
                         errorMessage = jsonobject.getString("ErrorMessage");
                         Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
@@ -1081,7 +1135,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                     dailyVisitJson.put("Longitude", dailyVisitModelArrayList.get(i).Longitude);
                     dailyVisitJson.put("WorkFlag", "A");
                     for (int j = 0; j < dailyVisitImageList.size(); j++) {
-                        if (dailyVisitModelArrayList.get(i).dailyVisitTableId.equals(dailyVisitImageList.get(j).DailyVisitTableId+"")) {
+                        if (dailyVisitModelArrayList.get(i).dailyVisitTableId.equals(dailyVisitImageList.get(j).DailyVisitTableId + "")) {
                             JSONObject dailyVisitImageJson = new JSONObject();
                             dailyVisitImageJson.put("TypeID", dailyVisitImageList.get(j).TypeID);
                             dailyVisitImageJson.put("DailyVisitID", i);
@@ -1093,6 +1147,10 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                     dailyVisitArray.put(dailyVisitJson);
                 }
                 json.put("visits", dailyVisitArray);
+
+                String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+                json.put("MobileKey", refreshedToken);
+
                 Log.i("save Json", json.toString());
                 httppost.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
                 String responseBody = httpclient.execute(httppost, responseHandler);

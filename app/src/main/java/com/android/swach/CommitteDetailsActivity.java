@@ -3,7 +3,7 @@ package com.android.swach;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class CommitteDetailsActivity extends AppCompatActivity {
     TextView tv_header_text;

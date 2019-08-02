@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "408752697054",
+    "firebase_url": "https://swach-dce7c.firebaseio.com",
+    "project_id": "swach-dce7c",
+    "storage_bucket": "swach-dce7c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408752697054:android:c71db5f48207febd",
+        "android_client_info": {
+          "package_name": "com.mohit.swach"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408752697054-a3o7f5nckptuab3planpaq9chmc6rcjb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mohit.swach",
+            "certificate_hash": "b9f4a848102ba1ea4aa8023b98e9b407a3390bcf"
+          }
+        },
+        {
+          "client_id": "408752697054-bovehccc98np26nql0k6ktodea9htcp5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7_3JrHJ10mzA0Yv2XK277LQLkbNiX4tg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408752697054-bovehccc98np26nql0k6ktodea9htcp5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
