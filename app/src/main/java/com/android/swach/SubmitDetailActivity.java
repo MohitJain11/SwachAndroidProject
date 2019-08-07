@@ -18,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -77,6 +78,7 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     TextView tv_header_text;
     TextView tv_committee_details, tv_sutdent_details;
     LinearLayout ll_menu_icon;
+    LinearLayout ll_privacy_policy;
     EditText et_remark3, et_remark1, et_remark2;
     EditText et_student_number;
     EditText et_remark;
@@ -166,14 +168,20 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
         tv_header_text.setText("Swach");
         ll_menu_icon = findViewById(R.id.ll_menu_icon);
         ll_menu_icon.setVisibility(View.VISIBLE);
-
         ll_menu_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 logout();
             }
         });
-
+        ll_privacy_policy = findViewById(R.id.ll_privacy_policy);
+        ll_privacy_policy.setVisibility(View.VISIBLE);
+        ll_privacy_policy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                privacyPocily();
+            }
+        });
         progressDialog = new ProgressDialog(SubmitDetailActivity.this);
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Loading");
@@ -305,6 +313,30 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
     @Override
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
+    }
+
+    private void privacyPocily(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(SubmitDetailActivity.this);
+        // Setting Dialog Title
+        alertDialog.setTitle("Privacy Policy");
+        // Setting Dialog Message
+        alertDialog.setMessage("Are you sure, you want to see privacy policy?");
+        // Setting Icon to Dialog
+//                alertDialog.setIcon(R.drawable.tick);
+        alertDialog.setPositiveButton("Privacy Policy", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+               //Show Privacy policy
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://swachproject.com/privacy_policy.HTML")));
+            }
+        });
+
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        alertDialog.show();
     }
 
     private void logout() {
