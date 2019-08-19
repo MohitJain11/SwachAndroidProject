@@ -745,7 +745,9 @@ public class SubmitDetailActivity extends AppCompatActivity implements AdapterVi
                 getImageListById(dailyVisitModel.dailyVisitTableId);
             } while (cursor.moveToNext());
         }
-        new DailyVisitSaveBulk().execute();
+        if(dailyVisitModelArrayList.size() > 0){
+            new DailyVisitSaveBulk().execute();
+        }
         dailyVisitHandler.close();
     }
 
